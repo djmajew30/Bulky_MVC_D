@@ -1,0 +1,7 @@
+﻿Controllers\CategoryController.cs
+Data\ApplicationDbContext.cs
+Models\Category.cs
+
+update-database
+add-migration AddCategoryTableToDb
+

@@ -1,0 +1,313 @@
+﻿70. IRepository Interface
+create new repository
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBook.DataAccess\Repository\IRepository\IRepository.cs
+    public interface IRepository<T> where T : class
+    {
+        //T - Category or any geeneric model where we want to perform CRUD operation
+        IEnumerable<T> GetAll();
+        T Get(Expression<Func<T,bool>> filter); //get a function, out will be boolean
+        //create a category, move
+        void Add(T entity);
+        //void Update(T entity); //will not have becuase can be different between models?
+        void Remove(T entity);
+        void RemoveRange(IEnumerable<T> entities);
+    }
+
+71. Implement Repository Interface
+Create a class that implements the IRepository
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBook.DataAccess\Repository\Repository.cs
+add using BulkyBook.DataAccess.Repository.IRepository;
+    public class Repository<T> : IRepository<T> where T : class
+ctrl + . and implement interface, will populate the methods
+Use dependency injection
+ public class Repository<T> : IRepository<T> where T : class
+    {
+        private readonly ApplicationDbContext _db;
+        //we dont know type of data that will CRUD, so instead of _db.Categories.Add(),
+        //we will use dbset.Add();
+        internal DbSet<T> dbSet;
+        //ctor
+        public Repository(ApplicationDbContext db)
+        {
+            _db = db;
+            this.dbSet = _db.Set<T>();
+        }
+        public void Add(T entity)
+        {
+            dbSet.Add(entity);
+        }
+
+        //public T Get(System.Linq.Expressions.Expression<Func<T, bool>> filter) //added to using statement above
+        public T Get(Expression<Func<T, bool>> filter)
+        {
+            //This is the same as _db.Categories.Where(u=>u.Id==id).FirstOrDefault()
+            IQueryable<T> query = dbSet;
+            query  = query.Where(filter);
+            return query.FirstOrDefault();
+        }
+
+        public IEnumerable<T> GetAll()
+        {
+            IQueryable<T> query = dbSet;
+            return query.ToList();
+        }
+
+        public void Remove(T entity)
+        {
+            dbSet.Remove(entity);
+        }
+
+        public void RemoveRange(IEnumerable<T> entity)
+        {
+            dbSet.RemoveRange(entity);
+        }
+    }
+
+
+72. Implement ICategoryRepository
+Add new interface
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBook.DataAccess\Repository\IRepository\ICategoryRepository.cs
+    public interface ICategoryRepository : IRepository<Category> //get base functionality from IRepository, excpet for Update and Save
+    {
+        void Update(Category obj);
+        void Save();
+    }
+
+73. Implement Category Repository
+create new class 
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBook.DataAccess\Repository\CategoryRepository.cs
+    public class CategoryRepository : Repository<Category>,ICategoryRepository //ctrl + . to implement
+    {
+        //dependency injection
+        private ApplicationDbContext _db;
+        public CategoryRepository(ApplicationDbContext db):base(db) 
+        {
+            _db = db;
+        }
+
+        //Because ICategoryRepository/IRepository base functionality is good already,we dont need to use:
+        //Add, Get, GetAll, Remove, RemoveRange
+
+        public void Save()
+        {
+            _db.SaveChanges();
+        }
+
+        public void Update(Category obj)
+        {
+            _db.Update(obj);
+        }
+    }
+
+74. Replace DbContext with Category Repository
+In C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Controllers\CategoryController.cs
+we no longer want to use ApplicationDbContext, we want to use the category Repository
+ private readonly ICategoryRepository _categoryRepo;
+        public CategoryController(ICategoryRepository db)
+        {
+            _categoryRepo = db;
+        }
+        //private readonly ApplicationDbContext _db;
+        ////ctor
+        //public CategoryController(ApplicationDbContext db)
+        //{
+        //    _db = db;
+        //}
+
+Then change variables that were _db to _categoryRepo
+            //List<Category> objCategoryList = _db.Categories.ToList(); //can also use var
+            List<Category> objCategoryList = _categoryRepo.GetAll().ToList(); 
+                //_db.Categories.Add(obj); //keeps track of desired changes
+                //_db.SaveChanges(); //commits to DB
+                _categoryRepo.Add(obj); //keeps track of desired changes
+                _categoryRepo.Save(); //commits to DB
+ //Category catergoryFromDb = _db.Categories.Find(id);
+            Category catergoryFromDb = _categoryRepo.Get(u=>u.Id == id);
+
+Unable to resolve service for type error (issue with registering that service to the container)
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Program.cs
+using BulkyBook.DataAccess.Repository;
+using BulkyBook.DataAccess.Repository.IRepository;
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+
+
+75. How Easy is it to move to a Different Database?
+change appsettings to DB (double \\)
+just need to go to update-database in PM console andit will apply the migrations
+
+76. Renaming Project and Solving Issues
+ex. BulkyBook want to modify to BulkyBookBook
+Rename all projects in sol explorer
+Go to namespace, ctrl + shift + f to find and replace
+BulkyBook 
+with 
+BulkyBookBook
+if needed, remove dependencies- projects references in project file and re add
+remove 
+    <ProjectReference Include="..\Bulky.Models\BulkyBook.Models.csproj" />
+    <ProjectReference Include="..\Bulky.Utility\BulkyBook.Utility.csproj" />
+
+Check that db name wasn't renamed:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\appsettings.json
+
+Rebuild solution
+
+To Fix footer
+Adding the this section
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\wwwroot\css\site.css
+ 
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px;
+} 
+
+from _layout.cshtml.css to my wwwroot/css/site.css solved the problem.
+
+77. UnitOfWork Implementation
+Category repo is handling crud operations for category
+Save() uis currently globally accessible. We want to move to unit of work. Not always required. 
+Add new interface IUnitOfWork
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\Bulky.DataAccess\Repository\IRepository\IUnitOfWork.cs
+    public interface IUnitOfWork
+    {
+        ICategoryRepository Category { get; }
+        //implement global method
+        void Save();
+    }
+
+create class file UnitOfWork
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\Bulky.DataAccess\Repository\UnitOfWork.cs
+    public class UnitOfWork : IUnitOfWork //ctrl + . to implement
+    {
+        //dependency injection
+        private ApplicationDbContext _db;
+        public ICategoryRepository Category { get; private set; }
+        public UnitOfWork(ApplicationDbContext db) 
+        {
+            _db = db;
+            Category = new CategoryRepository(_db);
+        }
+        public void Save()
+        {
+            _db.SaveChanges(); //from Bulky.DataAccess\\Repository\CategoryRepository.cs
+            // also remove void Save() from Bulky.DataAccess\Repository\IRepository\ICategoryRepository.cs
+
+        }
+    }
+
+
+78. UnitOfWork in Action
+replace CategoryRepo with UnitOfWork in project
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Program.cs
+//builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Controllers\CategoryController.cs
+private readonly IUnitOfWork _unitOfWork;
+        public CategoryController(IUnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+        }
+        //private readonly ICategoryRepository _categoryRepo;
+        //public CategoryController(ICategoryRepository db)
+        //{
+        //    _categoryRepo = db;
+        //}
+
+Change others:
+        public IActionResult Index()
+        {
+            //List<Category> objCategoryList = _db.Categories.ToList(); //can also use var
+            //List<Category> objCategoryList = _categoryRepo.GetAll().ToList(); 
+            List<Category> objCategoryList = _unitOfWork.Category.GetAll().ToList(); 
+ 
+Save is not in repository, it's in unit of work, so like this:
+                _unitOfWork.Category.Add(obj); //keeps track of desired changes
+                _unitOfWork.Save(); //commits to DB
+
+Now using Unit of work instead of repository
+Unit of work we can access all repos we want
+Disadvantage: will create inmplementation of all repos made. like product, orders, etc
+
+79. Areas in .NET
+Adding areas for customer facing and admin panels
+right click project BulkyBookWeb, add new scaffolded item
+Add MVC area named Admin
+Adds folder called admin
+
+errors:
+Try clearing the NuGet cache using PM
+dotnet nuget locals all --clear
+, and then try to add your package.
+
+If that doesn't work, try deleting the NuGet.config file present inside 
+C:\Users\<username>\AppData\Roaming\NuGet directory, and then restore it using 
+dotnet restore
+command in PM manager. Try adding your package after this.
+
+The above solution works irrespective of whichever .NET version you're using.
+...
+
+Copy from 
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\ScaffoldingReadMe.txt
+to 
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Program.cs
+app.MapControllerRoute(
+    name: "default",
+    //pattern: "{controller=Home}/{action=Index}/{id?}"); //default pattern is Home/Index
+    pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}"); 
+
+Default is now customer, need to add that area too.
+Data and Models can be deleted becuase they are in their own projects
+move to admin controller:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Controllers\CategoryController.cs
+add:
+namespace BulkyBookWeb.Areas.Admin.Controllers
+{
+    [Area("Admin")]
+Move to customer Controller:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Controllers\HomeController.cs
+add:
+namespace BulkyBookWeb.Areas.Admin.Controllers
+{
+    [Area("Customer")]
+
+Now we get view is not found error. We moved controller, but we didn't move views
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Views\
+
+Move to admin views:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Views\Category\
+
+Move to Customer Views:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Views\Home\
+
+Copy both of these to each view area:
+_ViewImports.cshtml
+_ViewStart.cshtml
+
+Right now only Home and privacy are showing becuase cat is in admin.
+Need to now define asp-area in 
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Views\Shared\_Layout.cshtml
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="Customer" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            @* <a class="nav-link" asp-area="" asp-controller="Category" asp-action="Index">Category</a> *@
+                            <a class="nav-link" asp-area="Admin" asp-controller="Category" asp-action="Index">Category</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="Customer" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+
+
+80. Dropdown in NavBar
+https://getbootstrap.com/docs/5.3/getting-started/introduction/
+search for navbar
+https://getbootstrap.com/docs/5.3/components/navbar/
+copy dropdown
+

@@ -1,0 +1,209 @@
+﻿63. Create More Projects
+Typically in real world we will have sepearte projects
+
+new project type: Class Library
+BulkyBook.DataAccess --everything related to DB and migrations
+BulkyBook.Models
+BulkyBook.Utility --For all utils like email or constants for app
+
+Remove all Class1.cs files
+
+
+64. Modify Styling Refresh
+In the next video we will be modifying the style. 
+If the changes do not reflect in the browser make sure to hard refresh by pressing Ctrl+ F5.
+
+
+65. Modify Styling
+
+Change bootstrap theme
+https://bootswatch.com/
+Switch from Lux to Sandstone
+DL bootstrap.css
+Copy .css to BulkyBookWeb Project. wwwroot/lib/bootstrap/dist/css/bootstrap.css
+
+Change button colors that are default
+Get Snippets:
+https://www.dotnetmastery.com/Home/Details?courseId=9
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Docs Content\.NET 8 NEW Course\Snippets
+"C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Docs Content\.NET 8 NEW Course\Snippets\Section 4 - N-Tier Architecture\site.css"
+copy site.css file to wwwroot/css/site.css
+this is NOT introducing custom classes, this is overriding the classes that are in bootstrap
+
+Change design with pages, starting with Create
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Category\Create.cshtml
+@model Category
+
+<div class="card shadow border-0 mt-4">
+    <div class="card-header bg-secondary bg-gradient ml-0 py-3">
+     @*Header*@
+    <div class="row">
+        <div class="col-12 text-center">
+                <h2 class="text-white py-2">Create Category</h2>
+        </div>
+    </div>
+    </div>
+    <div class="card-body p-4">
+        <form method="post" class="row">
+            <div class="border p-3">
+                @*Each element to add to table*@
+                <div class="form-floating py-2 col-12">
+                    <input asp-for="Name" class="form-control border-0 shadow" />
+                    <label asp-for="Name" class="ms-2"></label>
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="form-floating py-2 col-12">
+                    <input asp-for="DisplayOrder" class="form-control border-0 shadow" />
+                    <label asp-for="DisplayOrder" class="ms-2"></label>
+                    <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+                </div>
+                @*buttons on each side*@
+                <div class="row pt-2">
+                    <div class="col-6 col-md-3">
+                        <button type="submit" class="btn btn-primary form-control">Create</button> 
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <a asp-controller="Category" asp-action="Index" class="btn btn-outline-primary border form-control">
+                            Back To List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts{
+    @{
+    <partial name="_ValidationScriptsPartial"/> //will look into shared folder becuase that is default for any partial view
+    }
+}
+
+
+66. Modify UI of Category Pages (html, css) (Create, Edit, Delete, Index)
+This is the template, from create.cshtml, to Edit, Delete, and Index views
+<div class="card shadow border-0 mt-4">
+    <div class="card-header bg-secondary bg-gradient ml-0 py-3">
+     @*Header*@
+    <div class="row">
+        <div class="col-12 text-center">
+                <h2 class="text-white py-2">Create Category</h2>
+        </div>
+    </div>
+    </div>
+    <div class="card-body p-4">
+ ...
+    </div>
+</div>
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Category\Delete.cshtml
+Copy create div to delete view:
+                <div class="form-floating py-2 col-12">
+                    <input asp-for="Name" class="form-control border-0 shadow" />
+                    <label asp-for="Name" class="ms-2"></label>
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+Change to                 
+                <div class="form-floating py-2 col-12">
+                    <input asp-for="Name" disabled class="form-control border-0 shadow" />
+                    <label asp-for="Name" class="ms-2"></label>
+                </div>
+
+Do the same for other fields
+Do the same in Edit view, copy from create
+Remove old Headers:
+                <div class="row pb-2">
+                    <h2 class="text-primary">
+                        Delete Category
+                    </h2>
+                    <hr />
+                </div>
+Add padding to bottons at bottom: 
+                <div class="row mt-3">
+
+Apply template in beginning of section to Index.cshtml
+<div class="card shadow border-0 mt-4">
+    <div class="card-header bg-secondary bg-gradient ml-0 py-3">
+     @*Header*@
+    <div class="row">
+        <div class="col-12 text-center">
+                <h2 class="text-white py-2">Create Category</h2>
+        </div>
+    </div>
+    </div>
+    <div class="card-body p-4">
+ ...
+    </div>
+</div>
+
+You do not need the container: <div class="container">
+Remove category list:
+                <h2 class="text-primary">
+                    Category List
+                </h2>
+Remove top padding of the create button, change to:         <div class="row pb-3">
+
+
+
+67. N-Tier Architecture
+Move from BulkyBookWeb to individual projects, delete after move
+To:
+BulkyBook.DataAccess --everything related to DB and migrations
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Data\
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Migrations\
+
+BulkyBook.Models
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Models\
+
+BulkyBook.Utility --For all utils like email or constants for app
+Create new clas called SD for static details
+Change to     public static class SD
+
+Install NuGet packages for EF Core in BulkyBook.DataAccess
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBook.DataAccess\Data\ApplicationDbContext.cs
+ctrl + . shows package needing to be installed,  or you can use the nuget manager
+right click BulkyBook SOLUTION, nuget package manager
+Install in DataAccess
+
+For all files in BulkyBook.DataAccess:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBook.DataAccess\Data\
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBook.DataAccess\Migrations\
+change namespace from 
+BulkyBook.Data 
+to 
+BulkyBook.DataAccess.Data
+
+namespace BulkyBookWeb.Migrations
+to
+BulkyBook.DataAccess.Migrations
+
+in C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBook.DataAccess\Data\ApplicationDbContext.cs
+//using BulkyBookWeb.Models;
+using BulkyBookWeb.Models;
+
+Right click BulkyBook.DataAccess, add project reference, models and utilities
+
+Add necessary using statements to missing references
+
+move files in C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBook.Models\Models\
+to BulkyBook.Models (outside of folder), this will change namespace
+
+Run BulkyBookWeb and handle errors 1 by 1
+
+
+68. How to Reset Database
+If everything is corrupt or you want to start fresh while learning
+Go to SSMS, delete DB
+go to migrations and delete
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBook.DataAccess\Migrations\ 
+go to tools--pm console
+**make sure to set the default project in PM console to BulkyBook.DataAccess:
+add-migration AddCategoryToDbAndSeedTable
+update-database
+
+69. Bonus - Dependency Injection Service Lifetimes
+AddScoped
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\DependencyInjectionServiceLifetime\DependencyInjectionServiceLifetime
+
+

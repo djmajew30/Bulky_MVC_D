@@ -1,0 +1,111 @@
+﻿110. Scaffolding Error
+If you have issues with scaffolding make sure you have updated NuGet package explained in 
+lecture 91  - Depereciated NuGet Package (Microsoft.AspNetCore.Mvc.ViewFeatures)
+
+errors:
+Try clearing the NuGet cache using PM
+dotnet nuget locals all --clear
+, and then try to add your package.
+
+If that doesn't work, try deleting the NuGet.config file present inside 
+C:\Users\<username>\AppData\Roaming\NuGet directory, and then restore it using 
+dotnet restore
+command in PM manager. Try adding your package after this.
+
+
+111. Scaffold Identity Implementation
+
+Identity is registration. login, credentials, tables, security, etc
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\Bulky.DataAccess\Data\ApplicationDbContext.cs
+First need to do some DbContext Configuration:
+
+    //public class ApplicationDbContext : DbContext //this is from using Microsoft.EntityFrameworkCore
+    public class ApplicationDbContext : DbContext //this is from using Microsoft.EntityFrameworkCore
+
+Application will fail, so you need to add this line in any OnModelCreating() in ApplicationDbContext.cs
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            ...
+
+Install NuGet package and add using statement:
+Microsoft.AspNetCore.Identity.EntityFrameworkCore (7.0.15 in this project)
+
+Add scaffolding:
+BulkyBookWeb, right click, new scaffolding item, choose Identity
+
+
+
+112. Scaffold Identity Issue (NET8)
+
+
+
+
+
+113. Understand what Got Added
+
+
+
+
+
+114. Add Identity Tables
+
+
+
+
+
+115. Extend Identity User
+
+
+
+
+
+116. Register a User
+
+
+
+
+
+117. Register an Application User
+
+
+
+
+
+118. Create Roles in Database
+
+
+
+
+
+119. Assign Roles on Registration
+
+
+
+
+
+120. Authorization in Project
+
+
+
+
+
+121. Update Login and Register UI
+
+
+
+
+
+122. Register Other Fields
+
+
+
+
+
+123. UI Bug
+
+
+
+

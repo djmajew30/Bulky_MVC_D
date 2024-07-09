@@ -1,0 +1,1025 @@
+﻿81. Create Product Model
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\Bulky.Models\Product.cs
+
+82. Seed Product and Assignment 1
+Add to C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\Bulky.DataAccess\Data\ApplicationDbContext.cs
+Use snippets to seed table
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Docs Content\.NET 8 NEW Course\Snippets\Section 6 - Product
+
+
+
+83. Assignment 1 Solution - Product Repository and UnitOfWork
+Push products to DB
+PM console- change default project to Data.Access
+add-migration addProductsToDb
+update-database
+
+Implement product repository
+Copy
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\Bulky.DataAccess\Repository\CategoryRepository.cs
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\Bulky.DataAccess\Repository\IRepository\ICategoryRepository.cs
+
+Paste and rename to ProductRepository
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\Bulky.DataAccess\Repository\ProductRepository.cs
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\Bulky.DataAccess\Repository\IRepository\IProductRepository.cs
+
+Rename inside interfaces
+
+Add to unit of work interface and implmentation
+1st- C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\Bulky.DataAccess\Repository\IRepository\IUnitOfWork.cs
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\Bulky.DataAccess\Repository\UnitOfWork.cs
+
+Confige Product Repository and Unit of Work
+
+84. Assignment 2 - Product CRUD Operations
+
+
+85. Assignment 2 Solution - Product CRUD Operations
+
+1. Create product controller and action methods
+Copy what we have for category and modify
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Controllers\CategoryController.cs
+rename to
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Controllers\ProductController.cs
+Modify contents for product/rename
+This file has Index Create Edit Delete
+
+
+2. Create views for Create Edit Delete Index
+Copy complete folder:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Views\Category\
+rename to
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Views\Products\
+rename all Category to Product in all views
+rename properties you want to display
+eg. Name to Title
+paste into Create, Delete, and Edit
+when pasting into delete, remove the validation AND disable input fields
+
+Go to:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Views\Products\Index.cshtml
+diplay properties you want
+We don't know category yet, so leave blank for now  <td></td>
+
+Add navigation to _layout
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Views\Shared\_Layout.cshtml
+
+Add space to bottom so footer doesnt touch the form
+all views, where it was mt-4, change to my-4, in first DIV only
+<div class="card shadow border-0 mt-4">
+to 
+<div class="card shadow border-0 my-4">
+
+
+Add Client Side validation
+
+
+86. Add Foreign Key in EF Core
+
+Need FK between category and product. accomplish through EF Core
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\Bulky.Models\Product.cs
+        //create foreign key
+        public int CategoryId { get; set; }
+        //need a navagation property to category table
+        [ForeignKey("CategoryId")]
+        public Category Category { get; set; }
+
+Have to fix seed data
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\Bulky.DataAccess\Data\ApplicationDbContext.cs
+add:                    CategoryId = 3 (or 1 or 2)
+
+
+
+add-migration addFKForCategoryProductRelation
+update-database
+Get-migration shows migrations
+
+/****** Script for SelectTopNRows command from SSMS  ******/
+SELECT *
+  FROM [Bulky].[dbo].[Product]
+
+  --ALTER TABLE [Bulky].[dbo].[Product]
+  --ADD CategoryId int;
+
+--  ALTER TABLE [Bulky].[dbo].[Product]
+--   ADD CONSTRAINT FK_Products_Categories_CategoryId FOREIGN KEY (CategoryId)
+--      REFERENCES dbo.Category (Id)
+--      ON DELETE CASCADE
+--      ON UPDATE CASCADE
+--;
+
+
+87. Add Image Url Column
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\Bulky.Models\Product.cs
+        public string ImageUrl { get; set; }
+
+Add empty to seed data
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\Bulky.DataAccess\Data\ApplicationDbContext.cs
+                    ImageUrl = ""
+
+add-migration addImageUrlToProduct
+update-database
+
+Add to create view
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Views\Product\Create.cshtml
+
+                <div class="form-floating py-2 col-12">
+                    <input asp-for="Product.ImageUrl" class="form-control border-0 shadow" />
+                    <label asp-for="Product.ImageUrl" class="ms-2"></label>
+                    <span asp-validation-for="Product.ImageUrl" class="text-danger"></span>
+                </div>
+
+88. Projections in EF Core
+
+Add a dropdown to toggle the category
+We need a list of categories to display in the dropdown
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Controllers\ProductController.cs
+        public IActionResult Create()
+        {           
+            //each Category object gets converted into a new SelectListItem with Text and Value
+            IEnumerable<SelectListItem> CategoryList = _unitOfWork.Category
+                .GetAll().Select(u => new SelectListItem
+                {
+                    Text = u.Name, //displayed in dropdown
+                    Value = u.Id.ToString() //value passed to table/db
+                });
+            return View();
+        }
+
+So how do we pass that onto our view? Store above into a viewbag
+
+89. Viewbag in Action
+
+Viewbag transfers data from controller to view, not the other way around
+Viewbag is a wrapper around ViewData
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Controllers\ProductController.cs
+
+        public IActionResult Create()
+        {           
+            ...
+            ViewBag.CategoryList = CategoryList;
+            return View();
+        }
+
+Now this can be accessed in the Product Create View
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Views\Product\Create.cshtml
+
+                <div class="form-floating py-2 col-12">
+                    @* <input asp-for="CategoryId" class="form-control border-0 shadow" /> *@
+                    <select asp-for="CategoryId" asp-items="ViewBag.CategoryList" class="form-select border-0 shadow">
+                        <option disabled selected>--Select Category--</option> @*disabled makes selection mandatory*@
+                    </select>  
+                    <label asp-for="CategoryId" class="ms-2"></label>
+                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                </div>
+
+
+90. ViewData in Action
+
+This is an alternative to Viewbag
+ViewData
+also transfers from controller to view
+Dictionary type, must be typecasted
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Controllers\ProductController.cs
+            //ViewBag.CategoryList = CategoryList;
+            ViewData["CategoryList"] = CategoryList;
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Views\Product\Create.cshtml
+
+                <div class="form-floating py-2 col-12">
+                    <select asp-for="CategoryId" asp-items="@(ViewData["CategoryList"] as IEnumerable<SelectListItem>)" class="form-select border-0 shadow">
+                        <option disabled selected>--Select Category--</option>
+                    </select>
+                    <label asp-for="CategoryId" class="ms-2"></label>
+                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                </div>
+
+TempData
+Stores short lived for a request.
+Must be TypeCast. 
+Once refreshed, message or data goes away
+
+
+91. Depereciated NuGet Package (Microsoft.AspNetCore.Mvc.ViewFeatures)
+
+In next video:
+edit project file in BulkyBook.Models
+in itemgroup, add:
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+  </ItemGroup>
+  
+then go to SelectListItem and ctrl + . and add using statement
+using Microsoft.AspNetCore.Mvc.Rendering;
+
+
+92. View Models in Action
+
+You may have many dropdowns or ViewBags
+Typically avoid ViewBag and ViewData if possible. you instead want to tightly bind your view to the data you want
+View Model is a combination of objects
+Add new ViewModels folder in BulkyBook.Models
+add new class:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\Bulky.Models\ViewModels\ProductVM.cs
+
+    public class ProductVM
+    {
+        public Product Product { get; set; }
+        //need Ienumerable to hold the dropdown
+        [ValidateNever]
+        public IEnumerable<SelectListItem> CategoryList { get; set; } //same as in product controller
+    }
+
+Remove validation for certain properties
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\Bulky.Models\ViewModels\ProductVM.cs
+
+        [ValidateNever]
+        public IEnumerable<SelectListItem> CategoryList { get; set; }
+
+Also remove validation from Product.cs:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\Bulky.Models\Product.cs
+
+        //need a navagation property to category table
+        [ForeignKey("CategoryId")]
+        [ValidateNever]
+        public Category Category { get; set; }
+        [ValidateNever]
+        public string ImageUrl { get; set; }
+
+
+Update Create.cshtml with new ImageUrl field
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Views\Product\Create.cshtml
+
+Top: add:
+
+@model BulkyBook.Models.ViewModels.ProductVM
+
+But we will be using BulkyBook.Models.ViewModels a lot, so add that to the admin, customer, and global (ALL) _imports.cshtml
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Customer\Views\_ViewImports.cshtml
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Views\_ViewImports.cshtml
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Views\_ViewImports.cshtml
+@using BulkyBook.Models.ViewModels
+
+in create.cshtml, fix fields:
+                    <input asp-for="Title" class="form-control border-0 shadow" />
+to
+                    <input asp-for="Product.Title" class="form-control border-0 shadow" />
+and
+                @*Product View Model Method*@
+                <div class="form-floating py-2 col-12">
+                    <select asp-for="Product.CategoryId" asp-items="@Model.CategoryList" class="form-select border-0 shadow">
+                        <option disabled selected>--Select Category--</option>
+                    </select>
+                    <label asp-for="Product.CategoryId" class="ms-2"></label>
+                    <span asp-validation-for="Product.CategoryId" class="text-danger"></span>
+                </div>
+
+                Can always access by using @model. if Product.CategoryId doesnt work
+
+Modify Controller
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Controllers\ProductController.cs
+in HTTPPost we said project obj, nee dot modify to ProductVM
+
+        [HttpPost] 
+        //public IActionResult Create(Product obj)
+        public IActionResult Create(ProductVM obj)
+        {
+        ...
+            if (ModelState.IsValid) 
+            {
+                //_unitOfWork.Product.Add(obj); 
+                _unitOfWork.Product.Add(obj.Product); 
+                ...
+        }
+
+If not done in above steps:
+Remove validation for certain properties
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\Bulky.Models\ViewModels\ProductVM.cs
+
+        [ValidateNever]
+        public IEnumerable<SelectListItem> CategoryList { get; set; }
+
+Also remove validation from Product.cs:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\Bulky.Models\Product.cs
+
+        //need a navagation property to category table
+        [ForeignKey("CategoryId")]
+        [ValidateNever]
+        public Category Category { get; set; }
+        [ValidateNever]
+        public string ImageUrl { get; set; }
+
+To remove exception from front end and populate dropdown again if there is an exception
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Controllers\ProductController.cs
+
+        [HttpPost] 
+        public IActionResult Create(ProductVM productVM)
+        {
+            ...
+            if (ModelState.IsValid) 
+            ...
+            else
+            {
+                 productVM.CategoryList = _unitOfWork.Category.GetAll()
+                    .Select(u => new SelectListItem
+                    {
+                        Text = u.Name,
+                        Value = u.Id.ToString()
+                    });
+                return View(productVM);
+            }
+        }
+
+
+93. File Upload Input
+Change ImageUrl to a file upload
+upload image
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Views\Product\Create.cshtml
+
+                <div class="form-floating py-2 col-12">
+                    @* <input asp-for="Product.ImageUrl" class="form-control border-0 shadow" /> *@
+                    <input type="file" class="form-control border-0 shadow" />
+                    <label asp-for="Product.ImageUrl" class="ms-2"></label>
+                    @*No validation*@
+                    @* <span asp-validation-for="Product.ImageUrl" class="text-danger"></span> *@
+                </div>
+
+Have to add to form method the enctype="multipart/form-data" for file upload to work
+
+        @* <form method="post" class="row"> *@
+        <form method="post" class="row" enctype="multipart/form-data">
+
+
+94. Combine, Create, and Edit Pages into a single page
+
+Change product controller. Basically you are allowing the Id to be either null or populated, then based on that, you will populate the view
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Controllers\ProductController.cs
+Changing IActionResult from Create to Upsert (update insert)
+Modify HttpGet:
+
+        //public IActionResult Create()
+        public IActionResult Upsert(int? id)
+        {
+            ///product view model method to create new
+            ProductVM productVM = new()
+            {
+                CategoryList = _unitOfWork.Category
+                .GetAll().Select(u => new SelectListItem
+                {
+                    Text = u.Name,
+                    Value = u.Id.ToString()
+                }),
+                Product = new Product()
+            };
+
+            //create if else for create or update
+            if (id==null || id==0)
+            {
+                //create
+                return View(productVM);
+            }
+            else
+            {
+                //update
+                productVM.Product = _unitOfWork.Product.Get(u=>u.Id==id);
+                return View(productVM);
+            }
+        }
+
+Update HttpPost
+
+        [HttpPost]
+        //public IActionResult Create(ProductVM productVM)
+        //IFormFile? file is for getting the image
+        public IActionResult Upsert(ProductVM productVM, IFormFile? file)
+        {...}
+
+
+We will come back to Upset post
+Comment out or remove Edit controllers
+
+Rename Create.cshtml to Upsert
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Views\Product\Create.cshtml
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Views\Product\Upsert.cshtml
+
+and Remove Admin view Edit.cshtml
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Views\Product\Upsert.cshtml
+Change title to Edit or Create Product depending on if ID is present:
+
+                @* <h2 class="text-white py-2">Create Product</h2> *@
+                <h2 class="text-white py-2">@(Model.Product.Id!=0 ? "Update" : "Create") Product</h2>
+
+Have Id in the hidden property after form so when we post we always have it populated
+
+    <div class="card-body p-4">
+        <form method="post" class="row" enctype="multipart/form-data">
+            <input asp-for="Product.Id" hidden />
+            <div class="border p-3">
+
+Modify button text. If update, Else create
+
+                @*buttons on each side*@
+                <div class="row pt-2">
+                    <div class="col-6 col-md-3">
+                        @if(Model.Product.Id!=0)
+                        {
+                            <button type="submit" class="btn btn-primary form-control">Update</button>
+                        }
+                        else
+                        {
+                            <button type="submit" class="btn btn-primary form-control">Create</button>
+                        }
+                    </div>
+
+
+Update nav property in Index
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Views\Product\Index.cshtml
+
+Update Create:
+
+                @* <a asp-controller="Product" asp-action="Create" class="btn btn-primary"> *@
+                    <a asp-controller="Product" asp-action="Upsert" class="btn btn-primary">
+
+Update Edit:
+
+                                @* <a asp-controller="Product" asp-action="Edit" asp-route-id="@obj.Id" class="btn btn-primary mx-2"> *@
+                                <a asp-controller="Product" asp-action="Upsert" asp-route-id="@obj.Id" class="btn btn-primary mx-2">
+
+
+95. Rich Text Editor
+
+Use 
+https://www.tiny.cloud/
+https://www.tiny.cloud/my-account/integrate/#html
+Copy Script with api in _layout
+Paste at bottom with other Scripts
+<script src="https://cdn.tiny.cloud/1/dqy2b6ikh2xhomlzrr0n5zpu9k2wm3n34g1h7sej37bzkfve/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
+Copy script tag in body and paste in Upsert view
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Views\Product\Upsert.cshtml
+
+Change description field and remove validation
+
+                <div class="form-floating py-2 col-12">
+                    @* <input asp-for="Product.Description" class="form-control border-0 shadow" /> *@
+                    <textarea asp-for="Product.Description" class="form-control border-0 shadow"></textarea>
+                    <label asp-for="Product.Description" class="ms-2"></label>
+                    @* <span asp-validation-for="Product.Description" class="text-danger"></span> *@
+                </div>
+
+Add script to the bottom
+
+@section Scripts{
+    <script>
+        tinymce.init({
+            selector: 'textarea',
+            plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate ai mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss',
+            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+            tinycomments_mode: 'embedded',
+            tinycomments_author: 'Author name',
+            mergetags_list: [
+                { value: 'First.Name', title: 'First Name' },
+                { value: 'Email', title: 'Email' },
+            ],
+            ai_request: (request, respondWith) => respondWith.string(() => Promise.reject("See docs to implement AI Assistant")),
+        });
+    </script>
+    @{
+    <partial name="_ValidationScriptsPartial"/> //will look into shared folder becuase that is default for any partial view
+    }
+
+Remove those plugins that you do not need:
+
+@section Scripts{
+    <script>
+        tinymce.init({
+            selector: 'textarea',
+            plugins: 'anchor autolink charmap codesample emoticons   lists   table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate ai mentions tableofcontents footnotes mergetags autocorrect typography inlinecss',
+            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough |  addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent',
+            tinycomments_mode: 'embedded',
+            tinycomments_author: 'Author name',
+            mergetags_list: [
+                { value: 'First.Name', title: 'First Name' },
+                { value: 'Email', title: 'Email' },
+            ],
+            ai_request: (request, respondWith) => respondWith.string(() => Promise.reject("See docs to implement AI Assistant")),
+        });
+    </script>
+    @{
+    <partial name="_ValidationScriptsPartial"/> //will look into shared folder becuase that is default for any partial view
+    }
+
+
+96. Create Product, update image in code and update URL
+Static files like images need to go into only 1 folder, wwwroot. 
+Add images folder and subfolder product
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\wwwroot\images\product\
+
+Upsert.cshtml, update ImageUrl 
+
+                <div class="form-floating py-2 col-12">
+                    @* <input type="file" class="form-control border-0 shadow" /> *@
+                    <input type="file" name="file" class="form-control border-0 shadow" />
+                    <label asp-for="Product.ImageUrl" class="ms-2"></label>
+                </div>
+
+
+
+Go to Upsert post handler method in 
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Controllers\ProductController.cs
+Need to save IFormFile? file to product/images path
+To access folder, we need to dependency injection
+
+        //private readonly IUnitOfWork _unitOfWork;
+        //public ProductController(IUnitOfWork unitOfWork)
+        //{
+        //    _unitOfWork = unitOfWork;
+        //}
+
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public ProductController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
+        {
+            _unitOfWork = unitOfWork;
+            _webHostEnvironment = webHostEnvironment;
+        }
+
+Now we can access the folder
+
+Test upload:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Docs Content\.NET 8 NEW Course\images
+
+
+97. Display Image on Update
+Update Upsert page and reserve column on the right for the column image
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Views\Product\Upsert.cshtml
+
+        <form method="post" class="row" enctype="multipart/form-data">
+            <input asp-for="Product.Id" hidden />
+            @*NEW lesson 97 to display image on right*@
+            <div class="row">
+                <div class="col-10">
+                ...paste <div class="border p-3"> info here
+                </div>
+                <div class="col-2">
+                    <img src="@Model.Product.ImageUrl" width="100%"
+                         style="border-radius:5px; border:1px solid #bbb969" />
+                </div>
+            </div>
+
+98. Handle Image on Update
+
+For the Image. Lets say they only update the description, the file chosen currently show no file chosen.
+So If file is present when updating, we want to delete the old image and replace with new
+If the file is not present, we want to keep what is currently there
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Controllers\ProductController.cs
+
+if (ModelState.IsValid) 
+            {
+                string wwwRootPath = _webHostEnvironment.WebRootPath;
+                // check if file is not null, then do upload if not null
+                if (file!= null)
+                {
+                    ...
+                    //if file is not null, we are uploading a new image
+                    if(!string.IsNullOrEmpty(productVM.Product.ImageUrl)) 
+                    {
+                        //delete old image
+                        //find path of old image and we need to remove the leading forward slashes
+                        var oldImagePath = Path.Combine(wwwRootPath, productVM.Product.ImageUrl.TrimStart('\\'));
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+                    ...
+                }
+
+                //identify if it is an add or update
+                if (productVM.Product.Id==0) //add
+                {
+                    _unitOfWork.Product.Add(productVM.Product);
+                }
+                else
+                {
+                    _unitOfWork.Product.Update(productVM.Product);
+                }
+
+                //_unitOfWork.Product.Add(productVM.Product); 
+                _unitOfWork.Save(); 
+                ...
+            }
+
+Need to add image Url as a hidden field in 
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Views\Product\Upsert.cshtml
+
+            <input asp-for="Product.Id" hidden />
+            <input asp-for="Product.ImageUrl" hidden />
+
+
+Need to add image Url as a hidden field in 
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Views\Product\Upsert.cshtml
+
+            <input asp-for="Product.Id" hidden />
+            <input asp-for="Product.ImageUrl" hidden />
+
+
+
+99. Update Product Custom Code
+
+Be explicit about what needs updating
+Update repository
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\Bulky.DataAccess\Repository\ProductRepository.cs
+
+        public void Update(Product obj)
+        {
+            //_db.Products.Update(obj); ////ver1
+            //_db.Update(obj); ////ver2
+
+            //ver3
+            //to choose which properties to update
+            var objFromDb = _db.Products.FirstOrDefault(u=>u.Id == obj.Id);
+            if (objFromDb != null)
+            {
+                objFromDb.Title = obj.Title;
+                objFromDb.ISBN = obj.ISBN;
+                objFromDb.Price = obj.Price;
+                objFromDb.Price50 = obj.Price50;
+                objFromDb.ListPrice = obj.ListPrice;
+                objFromDb.Price100 = obj.Price100;
+                objFromDb.Description = obj.Description;
+                objFromDb.CategoryId = obj.CategoryId;
+                objFromDb.Author = obj.Author;
+                //only update ImageUrl if not null
+                if (obj.ImageUrl !=null)
+                {
+                    objFromDb.ImageUrl = obj.ImageUrl;
+                }
+            }
+
+Add imgaes to all other books
+
+
+100. Loading Navigation Properties
+
+Display Category in Product List index
+In product controller, this object objProductList stores only CategoryId:
+
+        public IActionResult Index()
+        {
+            List<Product> objProductList = _unitOfWork.Product.GetAll().ToList();
+            return View(objProductList);
+        }
+
+We need to populate this Category Property
+Use Include
+Add to core reposity because that is the method we are using int he controller to get all of the product
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\Bulky.DataAccess\Repository\Repository.cs
+
+        public Repository(ApplicationDbContext db)
+        {
+            _db = db;
+            this.dbSet = _db.Set<T>();
+            //to include category for the product index view
+            // you can include multiple if needed. ex: _db.Products.Include(u => u.Category).Include(u => u.CategoryId);
+            _db.Products.Include(u => u.Category).Include(u=>u.CategoryId);
+        }
+
+We need to Add to the Get() and GetAll() properties IRepository interface:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\Bulky.DataAccess\Repository\IRepository\IRepository.cs
+
+        //IEnumerable<T> GetAll();
+        //ver2
+        IEnumerable<T> GetAll(string? includeProperties = null);
+
+        //T Get(Expression<Func<T,bool>> filter); //get a function, out will be boolean
+        //ver2
+        T Get(Expression<Func<T,bool>> filter, string? includeProperties = null); 
+
+
+Then we need to add to the Get() and GetAll() methods in \Bulky.DataAccess\Repository\Repository.cs
+
+        public T Get(Expression<Func<T, bool>> filter, string? includeProperties = null)
+        {
+            IQueryable<T> query = dbSet;
+            query  = query.Where(filter);
+
+            //new lesson 100
+            //not null or not empty
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                //we receive as CSV, so we need to split them
+                foreach (var includeProp in includeProperties
+                    .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProp);
+                }
+            }
+            return query.FirstOrDefault();
+        }
+
+        public IEnumerable<T> GetAll(string? includeProperties = null)
+        {
+            IQueryable<T> query = dbSet;
+
+            //new lesson 100
+            //not null or not empty
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                //we receive as CSV, so we need to split them
+                foreach (var includeProp in includeProperties
+                    .Split(new char[] {','},StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query=query.Include(includeProp);
+                }
+            }
+            return query.ToList();
+        }
+
+Now update the product controller to populate category:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Controllers\ProductController.cs
+
+        public IActionResult Index()
+        {
+            //List<Product> objProductList = _unitOfWork.Product.GetAll().ToList();
+            List<Product> objProductList = _unitOfWork.Product.GetAll(includeProperties:"Category").ToList();
+            return View(objProductList);
+        }
+
+Display in the index view:
+You can right click Index and go to view...
+        public IActionResult Index()
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Views\Product\Index.cshtml
+
+                        <td>
+                            @*this is an object, we need the name property of the object*@
+                            @obj.Category.Name
+                        </td>
+
+
+101. DataTables API
+
+For products, what if we want search, sorting, etc?
+One option is to use a 3rd party plugin
+https://datatables.net/
+in _layout.cshtml:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Views\Shared\_Layout.cshtml
+
+//cdn.datatables.net/2.0.0/css/dataTables.dataTables.min.css
+//cdn.datatables.net/2.0.0/js/dataTables.min.js
+
+Step 1- add these files/hrefs
+NOTE I had to use older versions to get it to work:
+
+CSS goes in the top section:
+    @* <link rel="stylesheet" href="//cdn.datatables.net/2.0.0/css/dataTables.dataTables.min.css" /> *@
+    <link rel="stylesheet" href="//cdn.datatables.net/1.13.3/css/jquery.dataTables.min.css" />
+
+js goes at the bottom witht he scripts
+    @* <script src="//cdn.datatables.net/2.0.0/js/dataTables.min.js" asp-append-version="true"></script> *@
+    <script src="//cdn.datatables.net/1.13.3/js/jquery.dataTables.min.js" asp-append-version="true"></script>
+
+Step 2- initialize the table
+
+We will be using Ajax call:
+https://datatables.net/manual/ajax
+You dont need a separate API for this, MVC adds support for API in the controller
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Controllers\ProductController.cs
+
+Copy from index and add a region at the bottom
+
+        #region API CALLS
+        //API endpoint
+        //in https://localhost:7136/admin/product/getall, this will give us a json of all of the products
+        [HttpGet]
+        public IActionResult GetAll()
+        {
+            List<Product> objProductList = _unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
+            return Json(new {data = objProductList });
+        }
+        #endregion
+
+
+102. Load DataTables
+
+Add new product.js (use class and rename, empty the file) 
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\wwwroot\js\product.js
+Copy the loading data section from https://datatables.net/manual/ajax
+
+    $('#myTable').DataTable( {
+        ajax: '/api/myData'
+    } );
+
+Here's the version in the file before adding columns:
+
+//jquery
+$(document).ready(function () {
+    loadDataTable();
+});
+
+function loadDataTable() {
+    dataTable = $('#tblData').DataTable({
+        ajax: '/admin/product/getall'
+    });
+}
+
+Once we get the records, we have to format:
+https://datatables.net/manual/data/
+
+//jquery
+$(document).ready(function () {
+    loadDataTable();
+});
+
+function loadDataTable() {
+    dataTable = $('#tblData').DataTable({
+        "ajax": { url:'/admin/product/getall'},
+        "columns": [
+            { data: 'title', "width": "25%" },
+            { data: 'isbn', "width": "15%" },
+            { data: 'listPrice', "width": "10%" },
+            { data: 'author', "width": "20%" },
+            { data: 'category.name', "width": "15%" }
+        ]
+    });
+}
+
+In product index, the foreach loop is no longer needed
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Views\Product\Index.cshtml
+
+delete:            <tbody>...
+                @foreach (var obj in Model)// dont need .OrderBy(u => u.Title))
+                ...            </tbody>
+
+Change:
+        @* <table class="table table-bordered table-striped"> *@
+        <table id="tblData" class="table table-bordered table-striped" style="width:100%">
+
+Add section for scripts and script at the bottom
+
+@section Scripts{
+    <script src="~/js/product.js"></script>
+}
+
+Currently we get unknown column error, becuase the 
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\wwwroot\js\product.js
+file still has column names that don't match the json. just check 
+https://localhost:7136/admin/product/getall
+
+
+
+103. Datatable column count
+number of cols in C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\wwwroot\js\product.js
+must match number (or can be less if adding data later like we are adding the buttons) in 
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Views\Product\Index.cshtml
+
+
+
+
+
+104. Edit Product Link in DataTable
+
+Now we want to add the buttons in the last <th> column
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\wwwroot\js\product.js
+
+function loadDataTable() {
+    dataTable = $('#tblData').DataTable({
+        "ajax": { url:'/admin/product/getall'},
+        "columns": [
+            { data: 'title', "width": "25%" },
+            { data: 'isbn', "width": "15%" },
+            { data: 'listPrice', "width": "10%" },
+            { data: 'author', "width": "15%" },
+            { data: 'category.name', "width": "10%" },
+            //for buttons
+            // multi line, use `` instead of ''
+            {
+                data: 'id',
+                "render": function (data) {
+                    return `<div class="w-75 btn-group" role="group">
+                     <a href="/admin/product/upsert?id=${data}" class="btn btn-primary mx-2"> <i class="bi bi-pencil-square"></i> Edit</a>               
+                     <a class="btn btn-danger mx-2"> <i class="bi bi-trash-fill"></i> Delete</a>
+                    </div>`
+                },
+                "width": "25%"
+            }
+        ]
+    });
+}
+
+105. Delete Product
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Controllers\ProductController.cs
+
+Remove existing delte functionality in Product controller.
+Also remove view:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Views\Product\Delete.cshtml
+
+Create new HttpDelete at the bottom
+
+        //to make the delete button functional in data table
+        public IActionResult Delete(int? id)
+        {
+            var productToBeDeleted = _unitOfWork.Product.Get(u => u.Id == id);
+            if (productToBeDeleted == null)
+            {
+                return Json(new { success = false, message = "Error while deleting" });
+            }
+
+            //remove image as well
+            var oldImagePath = 
+                Path.Combine(_webHostEnvironment.WebRootPath, 
+                productToBeDeleted.ImageUrl.TrimStart('\\'));
+
+            if (System.IO.File.Exists(oldImagePath))
+            {
+                System.IO.File.Delete(oldImagePath);
+            }
+
+            _unitOfWork.Product.Remove(productToBeDeleted);
+            _unitOfWork.Save();
+
+            return Json(new { success = true, message = "Delete successful" });
+        }
+        #endregion
+
+Update Product.js
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\wwwroot\js\product.js
+
+                "render": function (data) {
+                    return `<div class="w-75 btn-group" role="group">
+                     <a href="/admin/product/upsert?id=${data}" class="btn btn-primary mx-2"> <i class="bi bi-pencil-square"></i> Edit</a>               
+                     <a href="/admin/product/delete/${data}" class="btn btn-danger mx-2"> <i class="bi bi-trash-fill"></i> Delete</a>
+                    </div>`
+                },
+
+
+
+106. SweetAlerts
+https://sweetalert2.github.io/
+https://sweetalert2.github.io/#download
+
+Add to _layout.cshtml:
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+To invoke:
+https://sweetalert2.github.io/#examples
+Look for example with confirm button
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\Areas\Admin\Controllers\ProductController.cs
+add         [HttpDelete]
+to product controller 
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\Bulky\BulkyWeb\wwwroot\js\product.js
+Add to product.js file
+
+top of file:
+var dataTable;
+
+bottom of file:
+
+function Delete(url) {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this change",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: url, //url in Delete(url)
+                type: 'DELETE', //[HttpDelete]
+                success: function (data) {
+                    data.ajax.reload();
+                    toastr.success(data.message);
+                }
+            })
+            //Swal.fire({
+            //    title: "Deleted!",
+            //    text: "Your file has been deleted.",
+            //    icon: "success"
+            });
+        }
+    });
+}
+
+then change href  in middle of file to:
+
+                "render": function (data) {
+                    return `<div class="w-75 btn-group" role="group">
+                     <a href="/admin/product/upsert?id=${data}" class="btn btn-primary mx-2"> <i class="bi bi-pencil-square"></i> Edit</a>               
+                     <a onClick= Delete('/admin/product/delete/${data}') class="btn btn-danger mx-2"> <i class="bi bi-trash-fill"></i> Delete</a>
+                    </div>`
+                },
+
+
+
+
+

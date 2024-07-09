@@ -1,0 +1,16 @@
+﻿
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Controllers\HomeController.cs
+        public IActionResult Privacy2() //views-home-privacy2
+        {
+            return View();
+        }
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Home\Privacy2.cshtml
+
+to add to taskbar:
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Shared\_Layout.cshtml
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy2">Privacy2</a>
+                        </li>

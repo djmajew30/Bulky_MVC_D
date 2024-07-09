@@ -1,0 +1,272 @@
+﻿54. Create Razor Project
+Add new project to BulkyBook solution
+Type Razor Pages, select "ASP.NET Core Web App" using Razor Pages
+BulkyBookWebRazor_Temp
+Right click and set as startup project
+
+Install NuGet packages:
+using .net7 for this: Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWebRazor_Temp\Program.cs
+// Add services to the container.
+builder.Services.AddRazorPages();
+builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
+
+//no controllers in this project type:
+https://localhost:7074/Privacy instead of privacy/index
+
+
+
+55. What's Different in Razor Project?
+Create Models folder
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWebRazor_Temp\Models\
+Create new Category.cs class
+Copy category model
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWebRazor_Temp\Models\Category.cs
+
+Create Data folder
+Create ApplicationDbContext inside Data folder (later, after packages installed)
+
+Copy connection string from appsettings.json BulkyBook to new project, change DB to BulkyBook_Razor
+
+TO DO, on your own, seed category and set up dbcontext
+
+1. add model, which is the table:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Models\Category.cs
+
+2. create connection string:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\appsettings.json
+
+3. Setup ApplicationDbContext
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Data\ApplicationDbContext.cs
+
+pass connection string:
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options){}
+
+Register in program.cs:
+// Add services to the container.
+...
+//use ef core from Data.ApplicationDbContext.cs, this forces dependency injection in .net core
+builder.Services.AddDbContext<ApplicationDbContext>(options=>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+4. Creating the database BulkyBook, based on connection string
+add-migration AddCategoryToDb
+PM: update-database
+
+56. Setup EF Core
+
+To install:
+Microsoft.EntityFrameworkCore
+Microsoft.EntityFrameworkCore.SqlServer
+Microsoft.EntityFrameworkCore.Tools
+
+Alternate way to using package manager:
+right click BulkyBookWeb, edit project file, copy into BulkyBookWebRazor_Temp project file
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="7.0.15" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.15" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.15" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.15">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+
+
+57. Create first Razor Page
+We do not have controller. we have the pages folder. 
+Create new folder called Categories. You want to name it Categories instead of the model name because otherwise you'll use the using statments many times
+Add empty Razor page called index.cshtml
+In MVC we have view
+In Razor, we have razor page and the cs file will be razor model
+index.cshtml
+index.cshtml.cs
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWebRazor_Temp\Pages\Categories\index.cshtml
+@page
+@model BulkyBookWebRazor_Temp.Pages.Categories.indexModel
+<h1>Category List</h1>
+
+Route to new page:
+https://localhost:7074/Categories or https://localhost:7074/Categories/index
+
+
+58. Display all Categories
+We want to load all of the categories and display them. 
+mvc we used controller.
+Now we use model page. THIS IS THE NEW MODEL:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWebRazor_Temp\Pages\Categories\index.cshtml.cs
+        private readonly ApplicationDbContext _db;
+        public List<Category> CategoryList { get; set; }
+        //ctor
+        public indexModel(ApplicationDbContext db)
+        {
+            _db = db;
+        }
+        public void OnGet()
+        {
+            //we previously did this in the controller (MVC)
+            CategoryList=_db.Categories.ToList(); //Categories is from \Data\ApplicationDbContext.cs
+        }
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWebRazor_Temp\Pages\Categories\index.cshtml
+Directly access the model
+copy: C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Category\Index.cshtml
+Remove:@model List<Category>
+Change tag helpers
+            @* <a asp-controller="Category" asp-action="Create" class="btn btn-primary"> *@
+               <a asp-page="/categories/create" class="btn btn-primary">
+
+Update Model.. references:
+            @* @foreach (var obj in Model.OrderBy(u => u.DisplayOrder)) *@
+               @foreach (var obj in Model.CategoryList.OrderBy(u => u.DisplayOrder))
+
+Add categories navbutton in 
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWebRazor_Temp\Pages\Shared\_Layout.cshtml
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Categories/index">Category</a>
+                        </li>
+
+59. Create Category UI
+Add new razor page inside of categories
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWebRazor_Temp\Pages\Categories\Create.cshtml
+Copy UI from MVC project
+Create Page Model in:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWebRazor_Temp\Pages\Categories\Create.cshtml.cs
+copy some from index.cshtml.cs and change prop and IndexModel to CreateModel
+        private readonly ApplicationDbContext _db;
+        //public List<Category> CategoryList { get; set; }
+        public Category Category { get; set; }
+        //ctor
+        public CreateModel(ApplicationDbContext db)
+        {
+            _db = db;
+        }
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWebRazor_Temp\Pages\Categories\Create.cshtml
+Change Name and DisplayOrder errors like this:
+       @*   <label asp-for="Name" class="p-0"></label>
+            <input asp-for="Name" class="form-control" />   *@          
+            <label asp-for="Category.Name" class="p-0"></label>
+            <input asp-for="Category.Name" class="form-control" />
+
+Change all asp-controllers to asp-page and route:
+                @* <a asp-controller="Category" asp-action="Index" class="btn btn-secondary border form-control"> *@
+                   <a asp-page="/Categories/index" class="btn btn-secondary border form-control">
+
+Validations scripts partial is in create.cshtml when copied over
+
+60. Create Category Post Handler
+Add Post method so submit button works
+Bind property to be available in post handler:
+For one property:
+        [BindProperty]
+        public Category Category { get; set; }
+
+For all properties in the page, towards the top:
+    [BindProperties]
+    public class CreateModel : PageModel
+
+New Method to post
+        public IActionResult OnPost()
+        {
+            _db.Categories.Add(Category);
+            _db.SaveChanges();
+            return RedirectToPage("index");
+        }
+
+Assignment: work on edit and delete categories pages
+I think the process is:
+create page model
+create edit ui
+create post handlers
+
+61. Edit and Delete Category Pages
+Add pages:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWebRazor_Temp\Pages\Categories\Edit.cshtml
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWebRazor_Temp\Pages\Categories\Delete.cshtml
+
+create page model
+
+Copy everything from create.cshtml.cs
+Paste in Edit.cshtml.cs and [bindproperties]
+to get id from previous page, with validation:
+        public void OnGet(int? id)
+        {
+            //validation
+            if(id != null && id != 0)
+            {
+                Category = _db.Categories.Find(id);
+            }
+        }
+
+Can get category controller for edit and use in edit.cshtml.cs
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Controllers\CategoryController.cs
+        //create POST method
+        //not void becuase we want to redirect
+        public IActionResult OnPost( )
+        {
+            if (ModelState.IsValid)
+            {
+                _db.Categories.Update(Category); //from OnGet in line 26
+                _db.SaveChanges();
+                //TempData["success"] = "Category updated successfully";
+                return RedirectToPage("/categories/index");
+            }
+            return Page();
+        }
+
+create edit ui
+
+Copy edit view in MVC
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWebRazor_Temp\Pages\Categories\Edit.cshtml
+Change to asp-for="Category.Name"
+Change to asp-page="/Categories/Index"
+
+Work on delete:
+Page model- copy edit model
+copy post method OnPost from MVC controller
+
+copy MVC view delete.cshtml
+
+
+
+62. Toastr Notifications and Partial Views
+https://codeseven.github.io/toastr/
+
+Copy CDN for CSS
+//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css
+All global stylings are in _layout
+Pages\Shared\_Layout.cshtml
+    @*Use Toastr Notificaiton. Use .min. so when we move to production, we don't need to update anything *@
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
+
+Get .js, add to _Notification.cshtml (add razor page)
+//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js
+copy from view/shared/_Notification.cshtml to
+Pages\Shared\_Notification.cshtml
+IMPORTANT: remove top lines that reference _Notification.cshtml.cs model. You will not need this model and can delete it if necessary
+Code in partial view should start like this: @if (TempData["success"] != null)
+
+Index is currently using <partial name="_Notification" /> in 3 different pages (create edit delete). 
+To use on every page, add to _Layout
+copy from Views\Shared\_Layout.cshtml to
+Pages\Shared\_Layout.cshtml
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            <partial name="_Notification" />
+            @RenderBody()
+        </main>
+    </div>
+
+Set tempdata on the post handlers
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWebRazor_Temp\Pages\Categories\Create.cshtml.cs
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWebRazor_Temp\Pages\Categories\Edit.cshtml.cs
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWebRazor_Temp\Pages\Categories\Delete.cshtml.cs
+
+        public IActionResult OnPost()
+        {
+            ...
+            _db.SaveChanges();
+            TempData["success"] = "Category deleted (or updated or created) successfully";
+            ...
+        }
+

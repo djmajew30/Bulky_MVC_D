@@ -1,0 +1,644 @@
+﻿Packages, using .net7 for this:
+
+1st 
+Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Program.cs
+// Add services to the container.
+//builder.Services.AddControllersWithViews()
+builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
+
+others:
+Microsoft.EntityFrameworkCore
+Microsoft.EntityFrameworkCore.SqlServer
+Microsoft.EntityFrameworkCore.Tools
+
+for new:
+
+1. add model, which is the table:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Models\Category.cs
+
+2. create connection string:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\appsettings.json
+
+3. Setup ApplicationDbContext
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Data\ApplicationDbContext.cs
+
+pass connection string:
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options){}
+
+Register in program.cs:
+// Add services to the container.
+...
+//use ef core from Data.ApplicationDbContext.cs, this forces dependency injection in .net core
+builder.Services.AddDbContext<ApplicationDbContext>(options=>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+4. Creating the database BulkyBook, based on connection string
+PM: update-database
+
+5. Creating the table
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Data\ApplicationDbContext.cs
+        public DbSet<Category> Categories { get; set; }
+PM: add-migration AddCategoryTableToDb
+PM: update-database
+
+6. Add Category Controller for CRUD
+Add new controller:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Controllers\CategoryController.cs
+
+    public class CategoryController : Controller
+    {
+        public IActionResult Index()
+        {
+            return View();
+        }
+    }
+
+Create view for category/index (https://localhost:7136/category/index):
+new folder in view that matches Category name, new view, razor blank
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Category\Index.cshtml
+<h1>Category List</h1>
+
+7. Add Category Link in Header
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Shared\_Layout.cshtml
+add anchor tag (a) and list item (li):
+
+8. Optional- Seed Category Data
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Data\ApplicationDbContext.cs
+        //override the default function for data seeding
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Category>().HasData(
+                new Category {Id=1, Name="Action", DisplayOrder=1 },
+                new Category { Id = 2, Name = "SciFi", DisplayOrder = 2 },
+                new Category { Id = 3, Name = "History", DisplayOrder = 3 }
+                );
+        }
+
+PM: add-migration SeedCategoryTable and update-database
+
+9. Get all categories in controller to pass to the view
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Controllers\CategoryController.cs
+Always work with ApplicationDbContext
+        private readonly ApplicationDbContext _db;
+        //ctor
+        public CategoryController(ApplicationDbContext db)
+        {
+            _db = db;
+        }
+        public IActionResult Index()
+        {
+            List<Category> objCategoryList = _db.Categories.ToList(); //can also use var
+            return View();
+        }
+
+10. Pass list to the view/index page
+Create a table where you'll put the data:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Category\Index.cshtml
+<table class="table table-bordered table-striped">
+    <thead>
+    <tr>
+        <th>
+            Category Name
+        </th>
+        <th>
+            Display Order
+        </th>
+    </tr>
+    </thead>
+</table>
+
+11. Display the details in the table
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Controllers\CategoryController.cs
+            return View(objCategoryList);
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Category\Index.cshtml
+@model List<Category>
+ <tbody>
+        @foreach (var obj in Model.OrderBy(u=>u.DisplayOrder))
+        {
+        <tr>
+            <td>
+                @obj.Name
+            </td>
+            <td>
+                @obj.DisplayOrder
+            </td>
+        </tr> 
+        }
+    </tbody>
+
+(Started name to match course)
+36. Bootswatch Theme and Bootstrap Icons
+https://bootswatch.com/
+DL Bootstrap.css, open as text, copy, remove what's in here and paste it in here:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\wwwroot\lib\bootstrap\dist\css\bootstrap.css
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Shared\_Layout.cshtml
+change
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+to
+    <!--<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />-->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+
+Make header and footer dark:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Shared\_Layout.cshtml
+
+Header dark:
+        @* <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3"> *@
+            <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-primary border-bottom box-shadow mb-3">
+
+Text Lighter, for each header item:
+                        <li class="nav-item">
+                            @* <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a> *@
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+
+Footer Dark:
+    @* <footer class="border-top footer text-muted"> *@
+    <footer class="border-top bg-primary footer text-muted">
+
+Use Icons:
+https://icons.getbootstrap.com/
+Bottom, get CDN for these icons
+Paste in _Layout.cshtml
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+Go back to the website and search for your icon, click, copy, modify footer:
+       <div class="container">
+            &copy; 2024 - Made with <i class="bi bi-heart-fill"></i> by David Majewski - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+       </div>
+
+37. Design Category List Page
+
+Add button to allow user to create a new category
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Category\Index.cshtml
+@* <h1>Category List</h1> *@
+<div class="container">
+    <div class="row pt-4 pb-3"> @*in bootstrap, row is divided into 12 cols in a page. pt is padding top. pb is padding bottom*@
+        <div class="col-6"> @*Left hand side of page, display heading*@
+            <h2 class="text-primary">
+                Category List
+            </h2>
+        </div>
+        <div class="col-6 text-end"> @*Right side of page for the button. text-end to float to the right side*@
+            <a asp-controller="" asp-action="" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Create New Category
+            </a>
+        </div>
+    </div>
+...
+</div>
+
+38. Create Category UI
+
+Need to create a new page/view, but first need to create an action method that will invoke the view. Adding inside:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Controllers\CategoryController.cs
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+Create the view
+add manually OR right click on Create() above, add view:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Category\Create.cshtml
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Category\Index.cshtml
+Define which controller and action to invoke
+            <a asp-controller="Category" asp-action="Create" class="btn btn-primary">
+                @* can omit asp-controller="Category" if in the same view*@
+
+Create form/view with submit button
+Always think first about what is the model of that view (here will be Category itself)
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Category\Create.cshtml
+
+@model Category
+
+<form method="post">
+    @*Header*@
+    <div class="border p-3 mt-4">
+        <div class="row pb-2">
+            <h2 class="text-primary">
+                Create Category
+            </h2>
+            <hr />
+        </div>
+        @*Each element to add to table*@
+        <div class="mb-3 row p-1"> @*row makes it responsive*@
+            <label class="p-0">Category Name</label>
+            <input type="text" class="form-control" /> @*class="form-control" give full width*@
+        </div>
+        <div class="mb-3 row p-1">
+            <label class="p-0">Display Order</label>
+            <input type="text" class="form-control" /> @*class="form-control" give full width. border border-primary to give dark border*@
+        </div>
+
+        @*buttons on each side*@
+        <div class="row">
+            <div class="col-6 col-md-3">
+                @*col-md-3 means if it is smaller than medium, it will take col-6, else it will take 3 columns*@
+                <button type="submit" class="btn btn-primary form-control">Create</button> @*submit button, style="width:200px*@
+            </div>
+            <div class="col-6 col-md-3">
+                @* <a href="javascript:history.go(-1)" class="btn btn-primary">Go Back</a>@*link to go to previous page, gpt method. style="width:200px *@
+                @* <a asp-controller="Category" asp-action="Index" class="btn btn-outline-secondary form-control" ">Back To List</a> *@
+                <a asp-controller="Category" asp-action="Index" class="btn btn-secondary border form-control">
+                    Back To List
+                </a>
+            </div>
+        </div>
+       
+    </div>
+</form>
+
+
+39. Input Tag Helpers
+
+Bind input tags to fields in table using tag helpers from .net core
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Category\Create.cshtml
+Change Input tags:
+            @* <input type="text" class="form-control" /> @*class="form-control" give full width*@
+            @*class="form-control" give full width. No need to use type="text", because asp-for will inheret the type based on the property name*@
+            <input asp-for="Name" class="form-control" /> 
+
+Change Label tags:
+            @*No need to use Category Name if you put asp-for="Name" in label tag*@
+            @* <label class="p-0">Category Name</label> *@
+            <label asp-for="Name" class="p-0"></label> @*using category.cs model annotations to name field*@
+
+ISSUE: DisplayName is showing one word, we need "Display Name".
+Use annotations in model for client side UI or client side validation:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Models\Category.cs
+        [DisplayName("Category Name")]
+        public string Name { get; set; }
+        [DisplayName("Display Order")]
+
+40. Create Category (C of CRUD in SSMS)
+
+when button is hit to submit in this file:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Category\Create.cshtml
+<form method="post">...</form>
+
+, it hits the post request. For that we need to create another action method to save the data to SSMS in:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Controllers\CategoryController.cs
+        [HttpPost]
+        public IActionResult Create(Category obj)
+        {
+            _db.Categories.Add(obj); //keeps track of desired changes
+            _db.SaveChanges(); //commits to DB
+            return RedirectToAction("Index", "Category"); //redirect after submission. don't need Category if in the same controller
+        }
+
+41. Server Side Validations
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Models\Category.cs
+For display order, add annotation for INT to be between 1-100
+        [Range(1,100)]
+For STRING/VarChar, to annotate the max length to be 30:
+        [MaxLength(30)]
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Controllers\CategoryController.cs
+Add if statement to check validity
+        [HttpPost]
+        public IActionResult Create(Category obj)
+        {
+            if (ModelState.IsValid) //validates data annotations in category model
+            {
+                _db.Categories.Add(obj); //keeps track of desired changes
+                _db.SaveChanges(); //commits to DB
+                return RedirectToAction("Index", "Category"); //redirect after submission. don't need Category if in the same controller
+            }
+            return View();
+        }
+
+.net core has helpers to implement error messages
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Category\Create.cshtml
+using: <span asp-validation-for="Name" class="text-danger"></span>
+
+        <div class="mb-3 row p-1"> @*row makes it responsive*@
+            <label asp-for="Name" class="p-0"></label>
+            <input asp-for="Name" class="form-control" /> 
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="mb-3 row p-1">
+            <label asp-for="DisplayOrder" class="p-0"></label> @*using category.cs model annotations to name field*@
+            <input asp-for="DisplayOrder" class="form-control" /> @*class="form-control" give full width. border border-primary to give dark border*@
+            <span asp-valida
+
+To add a custom validation:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Models\Category.cs
+        [Required]
+        [Range(1,100,ErrorMessage = "The field Display Order must be between 1-100")]
+
+
+42. Custom Validations
+
+example: Name and display order cannot be the same
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Controllers\CategoryController.cs
+        public IActionResult Create(Category obj)
+        {
+            if (obj.Name==obj.DisplayOrder.ToString())
+            {
+                ModelState.AddModelError("name", "The DisplayOrder cannot exactly match the Category Name.");
+            }
+            ...
+        }
+
+To list all invalid fields at the top, use:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Category\Create.cshtml
+        <div asp-validation-summary="All"></div>
+        <div class="mb-3 row p-1"> 
+            ...
+        </div>
+        <div class="mb-3 row p-1">
+            ...
+        </div>
+
+
+
+43. Asp Validation Summary 
+(OPTIONAL, but leave create.cshtml as ModelOnly instead of All, or remove altogether becuase we have individual field invalidation checks)
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Controllers\CategoryController.cs
+Setting Test as an invalid value for Name field, not related to a property in the model:
+            if (obj.Name !=null && obj.Name.ToLower() == "test")
+            {
+                ModelState.AddModelError("","Test in an invalid value");
+            }
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Category\Create.cshtml
+because tehre is no relation to a property in the model, if we change this it give those at the top:
+        @* <div asp-validation-summary="All"></div> *@
+        <div asp-validation-summary="ModelOnly"></div>
+
+44. Client Side Validation, to automatically display validation while typing
+
+JS validation exists here:
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Shared\_ValidationScriptsPartial.cshtml
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Category\Create.cshtml
+Inside create.cshtml, need to reference validation _ValidationScriptsPartial.cshtml
+
+    @section Scripts{
+        @{
+        <partial name="_ValidationScriptsPartial"/> //will look into shared folder becuase that is default for any partial view
+        }
+    }
+
+
+45. Edit and Delete Buttons
+Get icons:
+https://icons.getbootstrap.com/icons/pencil-square/
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Category\Index.cshtml
+
+<table class="table table-bordered table-striped">
+    <thead>
+    <tr>
+        <th>
+            Category Name
+        </th>
+        <th>
+            Display Order
+        </th>
+        @*NEW*@
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+        @foreach (var obj in Model.OrderBy(u=>u.DisplayOrder))
+        {
+        <tr>
+            <td>
+                @obj.Name
+            </td>
+            <td>
+                @obj.DisplayOrder
+            </td>
+            @*NEW*@
+            <td>
+                <div class="w-75 btn-group" role="group">
+                    <a asp-controller="Category" asp-action="Edit" class="btn btn-primary mx-2">
+                                <i class="bi bi-pencil-square"></i> Edit
+                    </a>
+                    <a asp-controller="Category" asp-action="Delete" class="btn btn-danger mx-2">
+                                <i class="bi bi-trash-fill"></i> Delete
+                    </a>
+                </div>
+            </td>
+...
+</div>
+
+
+46. Get Category Details to Edit
+
+Stores OBJ infor into a variable object created in Edit(int id) controller
+Edit will be the same as create, except the fields will be populated
+Create Edit view
+Add action method inside of controller
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Controllers\CategoryController.cs
+        //this is to retreive/get the id 
+        public IActionResult Edit(int? id)
+        {
+            //validation if not a valid id
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
+            //retreive/get one from DB
+            Category catergoryFromDb = _db.Categories.Find(id);
+
+            //other method to do this:
+            //Category? catergoryFromDb2 = _db.Categories.FirstOrDefault(u=>u.Id==id);
+            //Category? catergoryFromDb3 = _db.Categories.Where(u=>u.Id==id).FirstOrDefault();
+            //check if null
+            if( catergoryFromDb != null )
+            {
+                return NotFound();
+            }
+            return View(catergoryFromDb); //this is what populates each field in the edit view
+        }
+
+Add tag helper to link to route
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Category\Index.cshtml
+                 @* <a asp-controller="Category" asp-action="Edit" class="btn btn-primary mx-2"> *@
+                    <a asp-controller="Category" asp-action="Edit" asp-route-id="@obj.Id" class="btn btn-primary mx-2">
+                        @*asp-route-id should match cat controller params int id*@
+                        <i class="bi bi-pencil-square"></i> Edit
+                    </a>
+
+47. Update Category
+
+Create edit view. Right click add view in Edit(int id) in controller and add
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Category\Edit.cshtml
+Since it will be the same as create, we can copy create.chtml code to edit.cshtml and change Names as needed (buttons, fields, etc)
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Controllers\CategoryController.cs
+HttpPost method to get object and update the category
+        [HttpPost] //not defined by default is a httpget action method
+        public IActionResult Edit(Category obj)
+        {
+            if (ModelState.IsValid) 
+            {
+                _db.Categories.Update(obj); 
+                _db.SaveChanges(); 
+                return RedirectToAction("Index", "Category"); 
+            }
+            return View();
+        }
+
+48. Update Category in Action
+Right now obj.Id is popualated to 1
+New record might be added if you don't add this to Edit.cshtml, if the Id field is named soemthing like CategoryId
+<form method="post">
+    <input asp-for="Id" hidden /> @* //not required is variable is named Id *@ 
+    @*Header*@
+
+49. Get and Post Action for Delete Category
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Controllers\CategoryController.cs
+Copy Edit get and post actions methods in controller
+
+
+50.Delete Category in Action
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Controllers\CategoryController.cs
+Right click on Delete action method and create empty view
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Category\Delete.cshtml
+Copy the Edit view into delete view, rename edit to delete as needed
+                @* <button type="submit" class="btn btn-primary form-control">Update</button> *@
+                <button type="submit" class="btn btn-danger form-control">Delete</button>
+
+Delete all validation
+            <span asp-validation-for="Name" class="text-danger"></span>
+            <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+</form>
+
+@section Scripts{
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}
+
+Disable input fields
+        <div class="mb-3 row p-1">
+            <label asp-for="Name" class="p-0"></label>
+            @* <input asp-for="Name" class="form-control" /> *@
+            <input asp-for="Name" disabled class="form-control" />
+        </div>
+        <div class="mb-3 row p-1">
+            <label asp-for="DisplayOrder" class="p-0"></label>
+            @* <input asp-for="DisplayOrder" class="form-control" /> *@
+            <input asp-for="DisplayOrder" disabled class="form-control" />
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Category\Index.cshtml
+Pass route id to know which one user wants to delete:
+                            @* <a asp-controller="Category" asp-action="Delete" class="btn btn-danger mx-2"> *@
+                            <a asp-controller="Category" asp-action="Delete" asp-route-id="@obj.Id" class="btn btn-danger mx-2"> @*call -id becuase matches controller Delete(int id)*@
+
+
+51. TempData
+Display notification that a record was created, deleted, updated successfully. Use TempData (.NET Core)
+Only available for the next render. For example, if we press the create button, the next render is index and it will render there
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Controllers\CategoryController.cs
+        
+        [HttpPost] //not defined by default is a get action method
+        public IActionResult Create(Category obj)
+        {
+            ...
+            if (ModelState.IsValid) //validates data annotations in category model
+            {
+                ...
+                _db.SaveChanges(); //commits to DB
+                TempData["success"] = "Category created successfully";
+                ...
+        }
+
+        [HttpPost] //not defined by default is a httpget action method
+        public IActionResult Edit(Category obj)
+        {
+            ... 
+                _db.SaveChanges();
+                TempData["success"] = "Category updated successfully";
+                return RedirectToAction("Index", "Category"); 
+            ...
+        }
+
+        [HttpPost, ActionName("Delete")] 
+        public IActionResult DeletePOST(int? id) //you can get complete Category obj, or just the id to delete
+        {
+            ...
+            _db.SaveChanges();
+            TempData["success"] = "Category deleted successfully";
+            return RedirectToAction("Index", "Category");
+        }
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Category\Index.cshtml
+At the top:
+@if (TempData["success"] != null)
+{
+    <h5 style="color:red;">@TempData["success"]</h5>
+}
+
+
+52. Partial Views
+Move tempdata logic into a partial view becuase we are repeating it
+
+Add new partial view
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Shared\_Notification.cshtml
+@if (TempData["success"] != null)
+{
+    <h5 style="color:red;">@TempData["success"]</h5>
+}
+
+@if (TempData["error"] != null)
+{
+    <h5 style="color:red;">@TempData["error"]</h5>
+}
+
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Category\Index.cshtml
+<partial name="_Notification" />
+@* @if (TempData["success"] != null)
+{
+    <h5 style="color:red;">@TempData["success"]</h5>
+} *@
+
+
+53. Toastr Notification
+https://codeseven.github.io/toastr/
+
+Copy CDN for CSS
+//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css
+All global stylings are in _layout
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Shared\_Layout.cshtml
+    @*Use Toastr Notificaiton. Use .min. so when we move to production, we don't need to update anything *@
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
+
+Get .js, add to _Notification.cshtml
+//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Shared\_Notification.cshtml
+@if (TempData["success"] != null)
+{
+    @*Use jquery*@
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    @*Use Toastr Notificaiton. Use .min. so when we move to production, we don't need to update anything *@
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    @* <h5>@TempData["success"]</h5> *@
+    <script type="text/javascript">
+        toastr.options = {
+            "positionClass": "toast-top-center"
+        };
+        toastr.success('@TempData["success"]');
+    </script>
+}
+
+Index is currently using <partial name="_Notification" /> in 3 different pages (create edit delete). 
+To use on every page, add to _Layout
+C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Views\Shared\_Layout.cshtml
+    <div class="container">
+        <main role="main" class="pb-3">
+            <partial name="_Notification" />
+            @RenderBody()
+        </main>
+    </div>
+
+
+
+
+
+

@@ -1,0 +1,6 @@
+﻿hotkey Ctrl + [, S to show the current document in the solution explorer
+
+Tools/Options.../Environment/Keyboard
+SolutionExplorer.SyncWithActiveDocument
+Ctrl+Alt+] instead
+On mouse, click and drag down

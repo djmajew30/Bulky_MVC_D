@@ -1,0 +1,5 @@
+﻿P17-PF2PTX0W\SQLEXPRESS
+
+ "ConnectionStrings": {
+    "DefaultConnection": "Server=P17-PF2PTX0W\\SQLEXPRESS;Database=BulkyBook;Trusted_Connection=True;TrustServerCertificate=True"
+  }
