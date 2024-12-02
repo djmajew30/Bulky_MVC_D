@@ -19,6 +19,11 @@ for new:
 C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\Models\Category.cs
 
 2. create connection string:
+sql server:
+(localdb)\mssqllocaldb
+or
+P17-PF2PTX0W\SQLEXPRESS
+
 C:\DEV_Training\C#\Udemy\ASP.NET Core MVC - The Complete Guide 2023 [NET8]\BulkyBook\BulkyBookWeb\appsettings.json
 
 3. Setup ApplicationDbContext
