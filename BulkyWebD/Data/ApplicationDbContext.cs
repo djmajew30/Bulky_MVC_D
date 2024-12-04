@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using BulkyWebD.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BulkyWebD.Data
 {
@@ -6,7 +7,9 @@ namespace BulkyWebD.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
-
+            
         }
+
+        public DbSet<Category> Categories { get; set; } //creates table on migration
     }
 }
