@@ -163,6 +163,19 @@ Footer Dark:
     @* <footer class="border-top footer text-muted"> *@
     <footer class="border-top bg-primary footer text-muted">
 
+Fix footer:
+C:\Trillium\IT Training\Source\Repos\Bulky_MVC_Local\BulkyWebD\wwwroot\css\site.css
+
+add:
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px;
+} 
+
 Use Icons:
 https://icons.getbootstrap.com/
 Bottom, get CDN for these icons
